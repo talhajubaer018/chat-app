@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "clsx",
+        "datasource",
+        "NEXTAUTH",
+        "prismadb",
         "tailwindcss"
     ]
 }

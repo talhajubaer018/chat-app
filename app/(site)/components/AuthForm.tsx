@@ -1,13 +1,21 @@
 'use client'
 
+import AuthSocialButton from '@/app/(site)/components/AuthSocialButton'
 import Button from '@/app/components/Button'
 import Input from '@/app/components/inputs/Input'
-import React, { useCallback, useState } from 'react'
+import axios from 'axios'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import { BsGithub, BsGoogle } from 'react-icons/bs'
 
 const AuthForm = () => {
     const [variant, setVariant] = useState<'LOGIN' | 'REGISTER'>('LOGIN')
     const [isLoading, setIsLoading] = useState(false)
+
+    const router = useRouter()
 
     const toggleVariant = useCallback(() => {
         if (variant === 'LOGIN') {
@@ -17,21 +25,47 @@ const AuthForm = () => {
         }
     }, [variant]);
 
-    const { register, handleSubmit, formState: { errors, } } = useForm<FieldValues>({
+    const { register, handleSubmit, formState: { errors } } = useForm<FieldValues>({
         defaultValues: {
             name: '',
             email: '',
             password: ''
         }
     })
+    console.log('AuthForm - errors:', errors)
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
+        console.log('AuthForm - data:', data)
         setIsLoading(true)
 
         if (variant === 'REGISTER') {
+            console.log('22222');
 
+            axios.post('/api/register', data)
+                .catch(() => toast.error('Something went wrong!'))
+                .finally(() => setIsLoading(false))
         }
         if (variant === 'LOGIN') {
+            console.log('33333333');
+            signIn('credentials', {
+                ...data,
+                name: data?.email,
+                redirect: false
+            }).then((callback) => {
+                console.log('.then - callback:', callback)
+                if (callback?.error) {
+                    toast.error('Invalid credentials!');
+                }
+
+                if (callback?.ok) {
+                    // router.push('/conversations')
+                    toast.success('Success');
+                }
+            }).catch((err) => {
+                console.log('AuthForm - err:', err)
+                return toast.error(JSON.stringify(err))
+            })
+                .finally(() => setIsLoading(false))
 
         }
     }
@@ -96,14 +130,7 @@ const AuthForm = () => {
 
                 <div className="mt-6">
                     <div className="relative">
-                        <div
-                            className="
-                absolute 
-                inset-0 
-                flex 
-                items-center
-              "
-                        >
+                        <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-300" />
                         </div>
                         <div className="relative flex justify-center text-sm">
@@ -113,7 +140,7 @@ const AuthForm = () => {
                         </div>
                     </div>
 
-                    {/* <div className="mt-6 flex gap-2">
+                    <div className="mt-6 flex gap-2">
                         <AuthSocialButton
                             icon={BsGithub}
                             onClick={() => socialAction('github')}
@@ -122,19 +149,9 @@ const AuthForm = () => {
                             icon={BsGoogle}
                             onClick={() => socialAction('google')}
                         />
-                    </div> */}
+                    </div>
                 </div>
-                <div
-                    className="
-            flex 
-            gap-2 
-            justify-center 
-            text-sm 
-            mt-6 
-            px-2 
-            text-gray-500
-          "
-                >
+                <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
                     <div>
                         {variant === 'LOGIN' ? 'New to Messenger?' : 'Already have an account?'}
                     </div>
