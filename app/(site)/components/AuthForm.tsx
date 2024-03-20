@@ -49,17 +49,16 @@ const AuthForm = () => {
             console.log('33333333');
             signIn('credentials', {
                 ...data,
-                name: data?.email,
                 redirect: false
             }).then((callback) => {
                 console.log('.then - callback:', callback)
                 if (callback?.error) {
-                    toast.error('Invalid credentials!');
+                    toast.error('Invalid credentials!')
                 }
 
                 if (callback?.ok) {
                     // router.push('/conversations')
-                    toast.success('Success');
+                    toast.success('Login Successful')
                 }
             }).catch((err) => {
                 console.log('AuthForm - err:', err)
@@ -73,17 +72,19 @@ const AuthForm = () => {
     const socialAction = (action: string) => {
         setIsLoading(true);
 
-        // signIn(action, { redirect: false })
-        //   .then((callback) => {
-        //     if (callback?.error) {
-        //       toast.error('Invalid credentials!');
-        //     }
-
-        //     if (callback?.ok) {
-        //       router.push('/conversations')
-        //     }
-        //   })
-        //   .finally(() => setIsLoading(false));
+        signIn(action, { redirect: false })
+          .then((callback) => {
+            if (callback?.error) {
+              toast.error('Invalid credentials!');
+            }
+            
+            if (callback?.ok) {
+                
+                toast.success('Login Successful');
+            //   router.push('/conversations')
+            }
+          })
+          .finally(() => setIsLoading(false));
     }
 
     return (
