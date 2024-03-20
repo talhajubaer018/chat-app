@@ -4,18 +4,27 @@ import AuthSocialButton from '@/app/(site)/components/AuthSocialButton'
 import Button from '@/app/components/Button'
 import Input from '@/app/components/inputs/Input'
 import axios from 'axios'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { BsGithub, BsGoogle } from 'react-icons/bs'
 
 const AuthForm = () => {
+    const session = useSession()
+    const router = useRouter()
+
     const [variant, setVariant] = useState<'LOGIN' | 'REGISTER'>('LOGIN')
     const [isLoading, setIsLoading] = useState(false)
 
-    const router = useRouter()
+
+    useEffect(() => {
+        if (session?.status === 'authenticated') {
+            router.push('/users')
+        }
+    }, [session?.status, router])
+
 
     const toggleVariant = useCallback(() => {
         if (variant === 'LOGIN') {
@@ -42,6 +51,7 @@ const AuthForm = () => {
             console.log('22222');
 
             axios.post('/api/register', data)
+                .then(() => signIn('credentials', data))
                 .catch(() => toast.error('Something went wrong!'))
                 .finally(() => setIsLoading(false))
         }
@@ -50,20 +60,22 @@ const AuthForm = () => {
             signIn('credentials', {
                 ...data,
                 redirect: false
-            }).then((callback) => {
-                console.log('.then - callback:', callback)
-                if (callback?.error) {
-                    toast.error('Invalid credentials!')
-                }
-
-                if (callback?.ok) {
-                    // router.push('/conversations')
-                    toast.success('Login Successful')
-                }
-            }).catch((err) => {
-                console.log('AuthForm - err:', err)
-                return toast.error(JSON.stringify(err))
             })
+                .then((callback) => {
+                    console.log('.then - callback:', callback)
+                    if (callback?.error) {
+                        toast.error('Invalid credentials!')
+                    }
+
+                    if (callback?.ok) {
+                        toast.success('Login Successful')
+                        router.push('/users')
+                    }
+                })
+                .catch((err) => {
+                    console.log('AuthForm - err:', err)
+                    return toast.error(JSON.stringify(err))
+                })
                 .finally(() => setIsLoading(false))
 
         }
@@ -73,18 +85,18 @@ const AuthForm = () => {
         setIsLoading(true);
 
         signIn(action, { redirect: false })
-          .then((callback) => {
-            if (callback?.error) {
-              toast.error('Invalid credentials!');
-            }
-            
-            if (callback?.ok) {
-                
-                toast.success('Login Successful');
-            //   router.push('/conversations')
-            }
-          })
-          .finally(() => setIsLoading(false));
+            .then((callback) => {
+                if (callback?.error) {
+                    toast.error('Invalid credentials!');
+                }
+
+                if (callback?.ok) {
+
+                    toast.success('Login Successful');
+                    //   router.push('/conversations')
+                }
+            })
+            .finally(() => setIsLoading(false));
     }
 
     return (
@@ -102,6 +114,7 @@ const AuthForm = () => {
                             required
                             id="name"
                             label="Name"
+                            placeholder='Name'
                         />
                     )}
                     <Input
@@ -110,8 +123,9 @@ const AuthForm = () => {
                         errors={errors}
                         required
                         id="email"
-                        label="Email address"
                         type="email"
+                        label="Email address"
+                        placeholder='Email'
                     />
                     <Input
                         disabled={isLoading}
@@ -119,8 +133,9 @@ const AuthForm = () => {
                         errors={errors}
                         required
                         id="password"
-                        label="Password"
                         type="password"
+                        label="Password"
+                        placeholder='Password'
                     />
                     <div>
                         <Button disabled={isLoading} fullWidth type="submit">
