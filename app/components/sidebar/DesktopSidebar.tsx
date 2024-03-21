@@ -1,16 +1,17 @@
 'use client';
 
-import useRoutes from "@/app/hooks/useRoutes";
-import { useState } from "react";
-import DesktopItem from "@/app/components/sidebar/DesktopItem";
+import Avatar from "@/app/components/Avatar"
+import DesktopItem from "@/app/components/sidebar/DesktopItem"
+import useRoutes from "@/app/hooks/useRoutes"
+import { User } from "@prisma/client"
+import { useState } from "react"
 
 interface DesktopSidebarProps {
-    // currentUser: User
+    currentUser: User
 }
 
-const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
-    // currentUser
-}) => {
+const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ currentUser }) => {
+    console.log('currentUser:', currentUser)
     const routes = useRoutes();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -39,12 +40,12 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
                         onClick={() => setIsOpen(true)}
                         className="cursor-pointer hover:opacity-75 transition"
                     >
-                        {/* <Avatar user={currentUser} /> */}
+                        <Avatar user={currentUser} />
                     </div>
                 </nav>
             </div>
         </>
-    );
+    )
 }
 
-export default DesktopSidebar;
+export default DesktopSidebar

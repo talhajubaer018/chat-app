@@ -1,9 +1,12 @@
 {
     "cSpell.words": [
+        "cloudinary",
         "clsx",
         "datasource",
+        "googleusercontent",
         "NEXTAUTH",
         "prismadb",
+        "superjson",
         "tailwindcss"
     ]
 }
